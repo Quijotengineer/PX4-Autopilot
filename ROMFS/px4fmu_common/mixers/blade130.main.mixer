@@ -2,10 +2,10 @@ Helicopter Cyclic-Collective-Pitch Mixing (CCPM) for PX4FMU
 Blade 130x helicopter has longer servo arms left and right. The front servo arm is shortest and has normalized length 10000.
 ==================================================
 
-Designed for osd_vtol_test aircraft.
+OSD Collective Pitch Dual Coaxial Rotor mixer
 
 This file defines mixers suitable for controlling a
-coaxial dual-rotor VTOL aircraft using PX4FMU.
+coaxial dual-rotor collective-pitch swashplate VTOL aircraft with 2 elevons and payload using PX4FMU.
 
 Configuration:
     - 2 COAXIAL (counter-rotating) ROTORS --> 2 SUMMING MIXERS (control thrust and yaw (with resulting torque due to unequal thrusts))
@@ -17,10 +17,15 @@ This mixer results form the combination of the
 Blade130 collective pitch MAV_TYPE (4) mixer: https://github.com/PX4/PX4-Autopilot/blob/master/ROMFS/px4fmu_common/mixers/blade130.main.mix
 and
 Coaxial helicopter MAV_TYPE_COAXIAL (3) mixer: https://github.com/PX4/Firmware/blob/master/ROMFS/px4fmu_common/mixers/coax.main.mix
+and
+VTOL Tailsitter Duo MAV_TYPE_VTOL_DUOROTOR: https://github.com/PX4/Firmware/blob/master/ROMFS/px4fmu_common/mixers/vtol_tailsitter_duo.main.mix
 
 ==================================================
 
-
+# Helicopter mixer 1
+# MAIN 1: Helicopter throttle (ignored)
+# MAIN 2, 3, 4: Collective Pitch Swashpalte servos
+---------------------------------------------------
 H: 3
 T:      0   3000   6000   8000  10000
 P:    500   1500   2500   3500   4500
@@ -29,6 +34,8 @@ S:      0  10000  10000      0  -8000   8000
 S:    140  13054  10000      0  -8000   8000
 S:    220  13054  10000      0  -8000   8000
 
+# Helicopter mixer 2: Ignored
+--------------------------------------------------
 #H: 3
 #T:      0   3000   6000   8000  10000
 #P:    500   1500   2500   3500   4500
@@ -37,28 +44,35 @@ S:    220  13054  10000      0  -8000   8000
 #S:    140  13054  10000      0  -8000   8000
 #S:    220  13054  10000      0  -8000   8000
 
-Upper rotor (CCW)
+# MAIN 5: Upper rotor (CCW) (control group 0, channels, 2 (yaw) and 3 (throttle))
 Mixing between yaw and thrust
 -------------
 M: 2
 S: 0 2  10000  10000      0 -10000  10000
 S: 0 3      0  20000 -10000 -10000  10000
 
-Lower rotor (CW)
+# MAIN 6: Lower rotor (CW) (control group 0, channels, 2 (yaw) and 3 (throttle))
 Mixing between yaw and thrust
 -------------
 M: 2
 S: 0 2  -10000  -10000      0 -10000  10000
 S: 0 3      0  20000 -10000 -10000  10000
 
-# mixer for the left aileron
-M: 1
-S: 1 0 -10000 -10000    0 -10000  10000
-
-# mixer for the right aileron
-M: 1
+# MAIN 7: Right (starboard) elevon. Three scalers total (output, roll, pitch)
+# --------------
+M: 2
+O:        7500    7500    0 -10000  10000
 S: 1 0   10000   10000    0 -10000  10000
-
-# mixer for the elevator
-M: 1
 S: 1 1   10000   10000    0 -10000  10000
+
+# MAIN 8: Left (port) elevon. Three scalers total (output, roll, pitch)
+# --------------
+M: 2
+O:        7500    7500    0 -10000  10000
+S: 1 0   10000   10000    0 -10000  10000
+S: 1 1  -10000  -10000    0 -10000  10000
+
+# MAIN 9: Payload 1 (control group 6) channel 1
+# --------------
+M: 1
+S: 6 1  10000  10000      0 -10000  10000
