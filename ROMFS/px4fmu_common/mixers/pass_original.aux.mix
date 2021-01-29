@@ -1,9 +1,8 @@
-
 # Manual pass through mixer for servo outputs 1-4
 
-# Payload 1 (control group 6) channel 1
+# AUX1 channel (select RC channel with RC_MAP_AUX1 param)
 M: 1
-S: 6 1  10000  10000      0 -10000  10000
+S: 3 5  10000  10000      0 -10000  10000
 
 # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
 M: 1

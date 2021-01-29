@@ -23,47 +23,32 @@ VTOL Tailsitter Duo MAV_TYPE_VTOL_DUOROTOR: https://github.com/PX4/Firmware/blob
 ==================================================
 
 # Helicopter mixer 1
-# MAIN 1: Helicopter throttle (ignored)
-# MAIN 2, 3, 4: Collective Pitch Swashpalte servos
+# MAIN 1, 2: Helicopter rotors
+# MAIN 3, 4, 5: Collective Pitch Swashpalte servos
+# MAIN 6: Payload
 ---------------------------------------------------
 H: 3
-T:      0   3000   6000   8000  10000
+T:      0   2500   5000   7500  10000
 P:    500   1500   2500   3500   4500
 # Swash plate servos:
 S:      0  10000  10000      0  -8000   8000
 S:    140  13054  10000      0  -8000   8000
 S:    220  13054  10000      0  -8000   8000
 
-# MAIN 5: Upper rotor (CCW) (control group 0, channels, 2 (yaw) and 3 (throttle))
-Mixing between yaw and thrust
--------------
-M: 2
-S: 0 2  10000  10000      0 -10000  10000
-S: 0 3      0  20000 -10000 -10000  10000
-
-# MAIN 6: Lower rotor (CW) (control group 0, channels, 2 (yaw) and 3 (throttle))
-Mixing between yaw and thrust
--------------
-M: 2
-S: 0 2  -10000  -10000      0 -10000  10000
-S: 0 3      0  	 20000 -10000 -10000  10000
-
-# MAIN 7: Payload 1 (control group 6) channel 1
+# MAIN 7: Right (starboard) elevon. Three scalers total (output, roll, pitch)
 # --------------
+M: 2
+O:        7500    7500    0 -10000  10000
+S: 1 0   10000   10000    0 -10000  10000
+S: 1 1   10000   10000    0 -10000  10000
+
+# MAIN 8: Left (port) elevon. Three scalers total (output, roll, pitch)
+# --------------
+M: 2
+O:        7500    7500    0 -10000  10000
+S: 1 0   10000   10000    0 -10000  10000
+S: 1 1  -10000  -10000    0 -10000  10000
+
+AUX2 Passthrough RC to control Payload
 M: 1
-S: 6 1  10000  10000      0 -10000  10000
-
-# NOT NEEDED IN HOVER MODE
-## MAIN 7: Right (starboard) elevon. Three scalers total (output, roll, pitch)
-## --------------
-#M: 2
-#O:        7500    7500    0 -10000  10000
-#S: 1 0   10000   10000    0 -10000  10000
-#S: 1 1   10000   10000    0 -10000  10000
-
-## MAIN 8: Left (port) elevon. Three scalers total (output, roll, pitch)
-## --------------
-#M: 2
-#O:        7500    7500    0 -10000  10000
-#S: 1 0   10000   10000    0 -10000  10000
-#S: 1 1  -10000  -10000    0 -10000  10000
+S: 3 6  10000  10000      0 -10000  10000

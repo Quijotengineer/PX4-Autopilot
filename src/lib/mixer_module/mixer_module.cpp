@@ -52,6 +52,11 @@ MixingOutput::MixingOutput(uint8_t max_num_outputs, OutputModuleInterface &inter
 	{&interface, ORB_ID(actuator_controls_3)},
 	{&interface, ORB_ID(actuator_controls_4)},
 	{&interface, ORB_ID(actuator_controls_5)},
+	/** ADDED FOR AUXILIARY MIXER FOR PAYLOAD */
+	//{&interface, nullptr},
+  	//{&interface, nullptr},
+  	{&interface, ORB_ID(actuator_controls_6)},
+  	/** END OF ADDED CODE */
 },
 _scheduling_policy(scheduling_policy),
 _support_esc_calibration(support_esc_calibration),
