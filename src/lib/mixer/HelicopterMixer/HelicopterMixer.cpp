@@ -246,7 +246,7 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 		outputs[i + 2] = constrain(outputs[i + 2], _mixer_info.servos[i].min_output, _mixer_info.servos[i].max_output);
 	}
 	
-	outputs[5] = get_control(3, 6); // from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
+	outputs[5] = get_control(6, 1); // Changed to (6,1) from (3,6) from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
 	
 	PX4_INFO("* CONTROL COUNT:         %i", (int)_mixer_info.control_count);
 	PX4_INFO("----- INPUTS -----");
