@@ -44,6 +44,11 @@
 #include <px4_platform_common/defines.h>
 #include <px4_platform_common/log.h>
 
+/** Libraries used by OSD */
+#include <iostream>
+#include <cstdio>
+#include <ctime>
+
 /** OSD DEFINITIONS */
 #ifndef MODULE_NAME
 #define MODULE_NAME "px4"
@@ -245,11 +250,11 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 		outputs[i + 2] += _mixer_info.servos[i].offset;
 		outputs[i + 2] = constrain(outputs[i + 2], _mixer_info.servos[i].min_output, _mixer_info.servos[i].max_output);
 	}
-	
+
 	outputs[5] = get_control(3, 6); // from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
-	
+
 	PX4_INFO("* CONTROL COUNT:         %i", (int)_mixer_info.control_count);
-	PX4_INFO("----- INPUTS -----");
+	PX4_INFO("----- COMMAND INPUTS -----");
 	PX4_INFO("< Throttle:         %f", (double)throttle);
 	PX4_INFO("<< Roll:             %f", (double)roll_cmd);
 	PX4_INFO("<<< Pitch:            %f", (double)pitch_cmd);
@@ -262,6 +267,36 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 	PX4_INFO(">>>> Servo2:                  %f", (double)outputs[3]);
 	PX4_INFO(">>>>> Servo3:                  %f", (double)outputs[4]);
 	PX4_INFO(">>>>>> Payload:                 %f", (double)outputs[5]);
+
+	/* LOG EVERYTHING */
+
+	std::time_t current_timestamp = std::time(nullptr);
+	std::string log_dir = "/";
+	std::string log_file_name = "control_log.txt";
+
+	inline void Logger( std::string logMsg )
+	{
+		std::string file_path = log_dir + std::put_time(std::localtime(&current_timestamp), "%y-%m-%d") + log_file_name;
+		std::string time_now = std::time(nullptr);
+		std::ofstream ofs(file_path.c_str(), std::ios_base::out | std::ios_base::app );
+		ofs << std::put_time(std::localtime(&time_now), "%y-%m-%d %OH:%OM:%OS") << '\t' << logMsg << '\n';
+		ofs.close();
+	}
+
+	Logger(("* CONTROL COUNT:         %i", (int)_mixer_info.control_count));
+	Logger("----- COMMAND INPUTS -----");
+	Logger(("< Throttle:         %s", std::to_string((double)throttle)));
+	Logger(("<< Roll:             %s", std::to_string((double)roll_cmd)));
+	Logger(("<<< Pitch:            %s", std::to_string((double)pitch_cmd)));
+	Logger(("<<<< Yaw:              %s", std::to_string((double)yaw_cmd)));
+	Logger(("<<<<< Collective Pitch: %s", std::to_string((double)collective_pitch)));
+	Logger("----- OUTPUTS -----");
+	Logger(("> Motor1:                 %s", std::to_string((double)outputs[0])));
+	Logger((">> Motor2:                 %s", std::to_string((double)outputs[1])));
+	Logger((">>> Servo1:                 %s", std::to_string((double)outputs[2])));
+	Logger((">>>> Servo2:                  %s", std::to_string((double)outputs[3])));
+	Logger((">>>>> Servo3:                  %s", std::to_string((double)outputs[4])));
+	Logger((">>>>>> Payload:                 %s", std::to_string((double)outputs[5])));
 
 	return _mixer_info.control_count + 3; /* CHANGED TO 2 FROM 1 TO ACCOUNT FOR EXTRA THROTTLE; CHANGE TO 3 FOR EXTRA PAYLOAD */
 }
