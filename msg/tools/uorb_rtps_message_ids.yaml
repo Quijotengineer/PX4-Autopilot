@@ -362,6 +362,7 @@ rtps:
   - msg: trajectory_setpoint
     id: 186
     alias: vehicle_local_position_setpoint
+    receive: true
   - msg: camera_trigger_secondary
     id: 187
     alias: camera_trigger
