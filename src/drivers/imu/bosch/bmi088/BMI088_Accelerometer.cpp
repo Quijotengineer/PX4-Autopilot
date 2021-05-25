@@ -278,32 +278,28 @@ void BMI088_Accelerometer::ConfigureAccel()
 	switch (ACC_RANGE) {
 	case acc_range_3g:
 		_px4_accel.set_scale(CONSTANTS_ONE_G * (powf(2, ACC_RANGE + 1) * 1.5f) / 32768.f);
-		_px4_accel.set_range(3.f);
+		_px4_accel.set_range(3.f * CONSTANTS_ONE_G);
 		break;
 
 	case acc_range_6g:
 		_px4_accel.set_scale(CONSTANTS_ONE_G * (powf(2, ACC_RANGE + 1) * 1.5f) / 32768.f);
-		_px4_accel.set_range(6.f);
+		_px4_accel.set_range(6.f * CONSTANTS_ONE_G);
 		break;
 
 	case acc_range_12g:
 		_px4_accel.set_scale(CONSTANTS_ONE_G * (powf(2, ACC_RANGE + 1) * 1.5f) / 32768.f);
-		_px4_accel.set_range(12.f);
+		_px4_accel.set_range(12.f * CONSTANTS_ONE_G);
 		break;
 
 	case acc_range_24g:
 		_px4_accel.set_scale(CONSTANTS_ONE_G * (powf(2, ACC_RANGE + 1) * 1.5f) / 32768.f);
-		_px4_accel.set_range(24.f);
+		_px4_accel.set_range(24.f * CONSTANTS_ONE_G);
 		break;
 	}
 }
 
 void BMI088_Accelerometer::ConfigureSampleRate(int sample_rate)
 {
-	if (sample_rate == 0) {
-		sample_rate = 800; // default to 800 Hz
-	}
-
 	// round down to nearest FIFO sample dt * SAMPLES_PER_TRANSFER
 	const float min_interval = FIFO_SAMPLE_DT;
 	_fifo_empty_interval_us = math::max(roundf((1e6f / (float)sample_rate) / min_interval) * min_interval, min_interval);
