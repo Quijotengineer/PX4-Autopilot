@@ -22,7 +22,7 @@
 # Configure as helicopter (number 4 defined in commander_helper.cpp)
 set MAV_TYPE 4
 
-set MIXER blade130
+#set MIXER blade130 ## OSD
 
 #set PWM_OUT 1234
 
@@ -55,3 +55,10 @@ param set-default MPC_THR_MIN 0.06
 param set-default MPC_MANTHR_MIN 0.06
 
 param set-default PWM_MAIN_MIN 1075
+
+## OSD to work with uavcan
+# Set mixer
+set MIXER blade130
+set MIXER_AUX blade130
+
+set PWM_OUT 1234
