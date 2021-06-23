@@ -42,6 +42,14 @@
 #include <mathlib/mathlib.h>
 #include <cstdio>
 #include <px4_platform_common/defines.h>
+#include <px4_platform_common/log.h>
+
+/** OSD DEFINITIONS */
+#ifndef MODULE_NAME
+#define MODULE_NAME "px4"
+#endif
+#define YAW_SCALER 1.0f
+/* END OSD DEFINITIONS*/
 
 #define debug(fmt, args...)	do { } while(0)
 //#define debug(fmt, args...)	do { printf("[mixer] " fmt "\n", ##args); } while(0)
@@ -224,17 +232,36 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 
 	float roll_cmd = get_control(0, 0);
 	float pitch_cmd = get_control(0, 1);
+	float yaw_cmd = get_control(0, 2);
 
-	outputs[0] = throttle;
+	outputs[0] = throttle + YAW_SCALER * yaw_cmd;
+	outputs[1] = throttle - YAW_SCALER * yaw_cmd;
 
 	for (unsigned i = 0; i < _mixer_info.control_count; i++) {
-		outputs[i + 1] = collective_pitch
+		outputs[i + 2] = collective_pitch
 				 + cosf(_mixer_info.servos[i].angle) * pitch_cmd * _mixer_info.servos[i].arm_length
 				 - sinf(_mixer_info.servos[i].angle) * roll_cmd * _mixer_info.servos[i].arm_length;
-		outputs[i + 1] *= _mixer_info.servos[i].scale;
-		outputs[i + 1] += _mixer_info.servos[i].offset;
-		outputs[i + 1] = constrain(outputs[i + 1], _mixer_info.servos[i].min_output, _mixer_info.servos[i].max_output);
+		outputs[i + 2] *= _mixer_info.servos[i].scale;
+		outputs[i + 2] += _mixer_info.servos[i].offset;
+		outputs[i + 2] = constrain(outputs[i + 2], _mixer_info.servos[i].min_output, _mixer_info.servos[i].max_output);
 	}
+	
+	outputs[5] = get_control(3, 6); // from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
+	
+	PX4_INFO("* CONTROL COUNT:         %i", (int)_mixer_info.control_count);
+	PX4_INFO("----- INPUTS -----");
+	PX4_INFO("< Throttle:         %f", (double)throttle);
+	PX4_INFO("<< Roll:             %f", (double)roll_cmd);
+	PX4_INFO("<<< Pitch:            %f", (double)pitch_cmd);
+	PX4_INFO("<<<< Yaw:              %f", (double)yaw_cmd);
+	PX4_INFO("<<<<< Collective Pitch: %f", (double)collective_pitch);
+	PX4_INFO("----- OUTPUTS -----");
+	PX4_INFO("> Motor1:                 %f", (double)outputs[0]);
+	PX4_INFO(">> Motor2:                 %f", (double)outputs[1]);
+	PX4_INFO(">>> Servo1:                 %f", (double)outputs[2]);
+	PX4_INFO(">>>> Servo2:                  %f", (double)outputs[3]);
+	PX4_INFO(">>>>> Servo3:                  %f", (double)outputs[4]);
+	PX4_INFO(">>>>>> Payload:                 %f", (double)outputs[5]);
 
-	return _mixer_info.control_count + 1;
+	return _mixer_info.control_count + 3; /* CHANGED TO 2 FROM 1 TO ACCOUNT FOR EXTRA THROTTLE; CHANGE TO 3 FOR EXTRA PAYLOAD */
 }
