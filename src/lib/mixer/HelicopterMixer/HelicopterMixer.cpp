@@ -48,7 +48,9 @@
 #ifndef MODULE_NAME
 #define MODULE_NAME "px4"
 #endif
-#define YAW_SCALER 1.0f
+#define YAW_SCALER 0.3f
+#define COLLECTIVE_SCALER 1.0f
+#define PWM_OUT_SHIFT 2
 /* END OSD DEFINITIONS*/
 
 #define debug(fmt, args...)	do { } while(0)
@@ -220,6 +222,9 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 		idx = HELI_CURVES_NR_POINTS - 2;
 	}
 
+	// Get collective offset from RC knob
+	float collective_RC_scaler = COLLECTIVE_SCALER * get_control(3, 6);
+
 	/* Local throttle curve gradient and offset */
 	float tg = (_mixer_info.throttle_curve[idx + 1] - _mixer_info.throttle_curve[idx]) / 0.25f;
 	float to = (_mixer_info.throttle_curve[idx]) - (tg * idx * 0.25f);
@@ -227,7 +232,8 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 
 	/* Local pitch curve gradient and offset */
 	float pg = (_mixer_info.pitch_curve[idx + 1] - _mixer_info.pitch_curve[idx]) / 0.25f;
-	float po = (_mixer_info.pitch_curve[idx]) - (pg * idx * 0.25f);
+	//float po = (_mixer_info.pitch_curve[idx]) - (pg * idx * 0.25f);
+	float po = (_mixer_info.pitch_curve[idx] + collective_RC_scaler) - (pg * idx * 0.25f);
 	float collective_pitch = constrain((pg * thrust_cmd + po), -0.5f, 0.5f);
 
 	float roll_cmd = get_control(0, 0);
@@ -238,16 +244,16 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 	outputs[1] = throttle - YAW_SCALER * yaw_cmd;
 
 	for (unsigned i = 0; i < _mixer_info.control_count; i++) {
-		outputs[i + 2] = collective_pitch
+		outputs[i + PWM_OUT_SHIFT] = collective_pitch
 				 + cosf(_mixer_info.servos[i].angle) * pitch_cmd * _mixer_info.servos[i].arm_length
 				 - sinf(_mixer_info.servos[i].angle) * roll_cmd * _mixer_info.servos[i].arm_length;
-		outputs[i + 2] *= _mixer_info.servos[i].scale;
-		outputs[i + 2] += _mixer_info.servos[i].offset;
-		outputs[i + 2] = constrain(outputs[i + 2], _mixer_info.servos[i].min_output, _mixer_info.servos[i].max_output);
+		outputs[i + PWM_OUT_SHIFT] *= _mixer_info.servos[i].scale;
+		outputs[i + PWM_OUT_SHIFT] += _mixer_info.servos[i].offset;
+		outputs[i + PWM_OUT_SHIFT] = constrain(outputs[i + PWM_OUT_SHIFT], _mixer_info.servos[i].min_output, _mixer_info.servos[i].max_output);
 	}
-	
-	outputs[5] = get_control(3, 6); // from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
-	
+
+	//outputs[5] = get_control(3, 6); // from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
+
 	PX4_INFO("* CONTROL COUNT:         %i", (int)_mixer_info.control_count);
 	PX4_INFO("----- INPUTS -----");
 	PX4_INFO("< Throttle:         %f", (double)throttle);
