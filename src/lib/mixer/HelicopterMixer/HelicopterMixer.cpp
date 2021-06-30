@@ -48,7 +48,7 @@
 #ifndef MODULE_NAME
 #define MODULE_NAME "px4"
 #endif
-#define YAW_SCALER 0.3f
+#define YAW_SCALER 0.03f
 #define COLLECTIVE_SCALER 1.0f
 #define PWM_OUT_SHIFT 2
 /* END OSD DEFINITIONS*/
@@ -223,17 +223,19 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 	}
 
 	// Get collective offset from RC knob
-	float collective_RC_scaler = COLLECTIVE_SCALER * get_control(3, 6);
+	// float collective_RC_scaler = COLLECTIVE_SCALER * get_control(3, 6);
+	float motor_output = get_control(3, 6); // To control throttle with knob
 
 	/* Local throttle curve gradient and offset */
-	float tg = (_mixer_info.throttle_curve[idx + 1] - _mixer_info.throttle_curve[idx]) / 0.25f;
-	float to = (_mixer_info.throttle_curve[idx]) - (tg * idx * 0.25f);
-	float throttle = constrain(2.0f * (tg * thrust_cmd + to) - 1.0f, -1.0f, 1.0f);
+	//float tg = (_mixer_info.throttle_curve[idx + 1] - _mixer_info.throttle_curve[idx]) / 0.25f;
+	//float to = (_mixer_info.throttle_curve[idx]) - (tg * idx * 0.25f);
+	// float throttle = constrain(2.0f * (tg * thrust_cmd + to) - 1.0f, -1.0f, 1.0f);
+	float throttle = constrain(2.0f * (motor_output) - 1.0f, -1.0f, 1.0f);
 
 	/* Local pitch curve gradient and offset */
 	float pg = (_mixer_info.pitch_curve[idx + 1] - _mixer_info.pitch_curve[idx]) / 0.25f;
-	//float po = (_mixer_info.pitch_curve[idx]) - (pg * idx * 0.25f);
-	float po = (_mixer_info.pitch_curve[idx] + collective_RC_scaler) - (pg * idx * 0.25f);
+	float po = (_mixer_info.pitch_curve[idx]) - (pg * idx * 0.25f);
+	//float po = (_mixer_info.pitch_curve[idx] + collective_RC_scaler) - (pg * idx * 0.25f);
 	float collective_pitch = constrain((pg * thrust_cmd + po), -0.5f, 0.5f);
 
 	float roll_cmd = get_control(0, 0);
