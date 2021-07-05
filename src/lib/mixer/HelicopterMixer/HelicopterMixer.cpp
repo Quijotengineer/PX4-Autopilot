@@ -48,8 +48,8 @@
 #ifndef MODULE_NAME
 #define MODULE_NAME "px4"
 #endif
-#define YAW_SCALER 0.03f
-#define YAW_MOTOR_DIFFERENCE 0.05f
+#define YAW_SCALER 0.1f  // needs to be large enough to overcome the difference of the 2 rotors.
+#define YAW_MOTOR_DIFFERENCE 0.0f
 #define COLLECTIVE_SCALER 1.0f
 #define PWM_OUT_SHIFT 2
 /* END OSD DEFINITIONS*/
@@ -245,7 +245,7 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 
 	// yaw_cmd: <0: ccw, >0: cw
 	outputs[0] = throttle * (1 - YAW_MOTOR_DIFFERENCE) - YAW_SCALER * yaw_cmd ; // Output[0] is upper CW Rotor --> CCW Torque
-	outputs[1] = throttle * (1 - YAW_MOTOR_DIFFERENCE) + YAW_SCALER * yaw_cmd ; // utput[0] is lower CCW Rotor --> CW Torque
+	outputs[1] = throttle * (1 - YAW_MOTOR_DIFFERENCE) + YAW_SCALER * yaw_cmd ; // Output[0] is lower CCW Rotor --> CW Torque
 
 	for (unsigned i = 0; i < _mixer_info.control_count; i++) {
 		outputs[i + PWM_OUT_SHIFT] = collective_pitch
