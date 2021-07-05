@@ -48,7 +48,7 @@
 #ifndef MODULE_NAME
 #define MODULE_NAME "px4"
 #endif
-#define YAW_SCALER 0.1f  // needs to be large enough to overcome the difference of the 2 rotors.
+#define YAW_SCALER 0.3f  // needs to be large enough to overcome the difference of the 2 rotors.
 #define YAW_MOTOR_DIFFERENCE 0.0f
 #define COLLECTIVE_SCALER 1.0f
 #define PWM_OUT_SHIFT 2
