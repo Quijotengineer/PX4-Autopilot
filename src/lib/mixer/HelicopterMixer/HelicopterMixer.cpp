@@ -48,7 +48,7 @@
 #ifndef MODULE_NAME
 #define MODULE_NAME "px4"
 #endif
-#define YAW_SCALER 0.3f  // needs to be large enough to overcome the difference of the 2 rotors.
+#define YAW_SCALER 0.1f  // needs to be large enough to overcome the difference of the 2 rotors.
 #define YAW_MOTOR_DIFFERENCE 0.0f
 #define COLLECTIVE_SCALER 1.0f
 #define PWM_OUT_SHIFT 2
@@ -258,6 +258,7 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 
 	//outputs[5] = get_control(3, 6); // from pass.aux.mix # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
 
+	/*
 	PX4_INFO("* CONTROL COUNT:         %i", (int)_mixer_info.control_count);
 	PX4_INFO("----- INPUTS -----");
 	PX4_INFO("< Throttle:         %f", (double)throttle);
@@ -272,6 +273,6 @@ HelicopterMixer::mix(float *outputs, unsigned space)
 	PX4_INFO(">>>> Servo2:                  %f", (double)outputs[3]);
 	PX4_INFO(">>>>> Servo3:                  %f", (double)outputs[4]);
 	PX4_INFO(">>>>>> Payload:                 %f", (double)outputs[5]);
-
+	*/
 	return _mixer_info.control_count + 3; /* CHANGED TO 2 FROM 1 TO ACCOUNT FOR EXTRA THROTTLE; CHANGE TO 3 FOR EXTRA PAYLOAD */
 }
